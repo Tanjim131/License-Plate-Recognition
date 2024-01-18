@@ -8,9 +8,7 @@ import os
 import argparse
 
 best_trained_model = torch.hub.load(
-    "ultralytics/yolov5",
-    "custom",
-    path="model-weights/best.pt",
+    "ultralytics/yolov5", "custom", path="app/model-weights/best.pt"
 )
 
 
@@ -176,7 +174,5 @@ parser.add_argument("image_path", type=str, help="Path to the image file")
 
 args = parser.parse_args()
 input_image = cv2.imread(args.image_path)
-
-print("input image = ", input_image)
 
 print(get_plate_number(input_image)[1])
