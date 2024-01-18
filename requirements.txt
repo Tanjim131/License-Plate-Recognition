@@ -6,8 +6,8 @@ opencv-python==4.9.0.80
 numpy==1.26.3
 easyocr==1.7.1
 Flask==3.0.0
-requests==2.31.0
 pandas==2.1.4
 psutil==5.9.7
 tqdm==4.66.1
 ultralytics==8.1.2
+gunicorn==21.2.0

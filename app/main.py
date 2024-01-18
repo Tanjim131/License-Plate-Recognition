@@ -6,6 +6,7 @@ import shutil
 import math
 import os
 import argparse
+from flask import Flask, request, jsonify
 
 best_trained_model = torch.hub.load(
     "ultralytics/yolov5", "custom", path="app/model-weights/best.pt"
@@ -169,10 +170,37 @@ def get_plate_number(input_image):
     return "", "", None
 
 
-parser = argparse.ArgumentParser(description="Process some images.")
-parser.add_argument("image_path", type=str, help="Path to the image file")
+app = Flask(__name__)
 
-args = parser.parse_args()
-input_image = cv2.imread(args.image_path)
 
-print(get_plate_number(input_image)[1])
+@app.route("/upload", methods=["POST"])
+def upload_file():
+    if "image" not in request.files:
+        return "No image file in request", 400
+
+    file = request.files["image"]
+    if file.filename == "":
+        return "No selected file", 400
+
+    if file:
+        # Read the image file in memory
+        filestr = file.read()
+        # Convert the image to a CV2 format
+        npimg = np.fromstring(filestr, np.uint8)
+        img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+
+        # Use your existing function to process the image
+        plate_number = get_plate_number(img)
+        if plate_number:
+            return jsonify(
+                {
+                    "character_segmentation_plate_number": plate_number[0],
+                    "whole_image_plate_number": plate_number[1],
+                }
+            )
+        else:
+            return "Could not process image", 500
+
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=80)
